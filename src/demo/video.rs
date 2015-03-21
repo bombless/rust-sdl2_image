@@ -4,7 +4,7 @@ use sdl2_image::LoadSurface;
 use sdl2_image::LoadTexture;
 
 pub fn main(png: &Path) {
-    sdl2::init(sdl2::INIT_VIDEO);
+    let sdl2_context = sdl2::init(sdl2::INIT_VIDEO).unwrap();
     sdl2_image::init(sdl2_image::INIT_PNG | sdl2_image::INIT_JPG);
 
     let window = match sdl2::video::Window::new(
@@ -40,9 +40,10 @@ pub fn main(png: &Path) {
     let _ = drawer.copy(&texture, None, None);
     drawer.present();
 
+    let mut event_pump = sdl2_context.event_pump();
     'main : loop {
-        'event : loop {
-            match sdl2::event::poll_event() {
+        'event : for event in event_pump.poll_iter() {
+            match event {
                 sdl2::event::Event::Quit{..} => break 'main,
                 sdl2::event::Event::KeyDown{ keycode: key, .. } => {
                     if key == sdl2::keycode::KeyCode::Escape {
@@ -54,5 +55,4 @@ pub fn main(png: &Path) {
         }
     }
     sdl2_image::quit();
-    sdl2::quit();
 }
